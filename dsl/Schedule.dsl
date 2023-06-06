@@ -11,8 +11,17 @@ workspace "Schedule" "System to Schedule appointments at the University" {
             mobileApp = container "Mobile Application" "Android and iOS Mobile" "Kotlin / Swift" "MobileApp"
             database = container "Database" "Database of Application" "SQL Server" "Database"
             
-            accountBC = container "Account Bounded Context" "Api RESTful of Manage user account" "Java v17 / Spring v3" "AccountBC,BoundedContext"
-            crudPeopleBC = container "CRUD People Bounded Context" "Api RESTful of Manage crud of Student and Teacher" "Java v17 / Spring v3" "CrudPeopleBC,BoundedContext"
+            accountBC = container "Account Bounded Context" "Api RESTful of Manage user account" "Java v17 / Spring v3" "AccountBC,BoundedContext" {
+                userController = component "User Controller" "REST Controller ofor Account" "Java v17 / Spring Web" "UserController,Controller"
+                userService = component "User Service" "Business Login for Account" "Java v17 / Spring Data" "UserService,Service"
+                userRepository = component "User Repository" "Method for access to user table" "Java v17 / Spring Data" "UserRepository,Repository"
+                gmailComponent = component "Gmail Component" "Gmail user" "Java v17" "GmailComponent"
+                
+                studentRepository  = component "Student Repository" "Method for access to student table" "Java v17 / Spring Data" "StudentRepository,Repository"
+                teacherRepository  = component "Teacher Repository" "Method for access to teacher table" "Java v17 / Spring Data" "TeacherRepository,Repository"
+            }
+            crudPeopleBC = container "CRUD People Bounded Context" "Api RESTful of Manage crud of Student and Teacher" "Java v17 / Spring v3" "CrudPeopleBC,BoundedContext" 
+            
             crudOtherBC = container "CRUD Othes Bounded Context" "Api RESTful of Manage crud of other class" "Java v17 / Spring v3" "CrudOtherBC,BoundedContext"
             coreScheduleBC = container "Schedule Bounded Context" "Api RESTful of Business Core of Schedule process" "Java v17 / Spring v3" "coreScheduleBC,BoundedContext"
             apiGateway = container "Api Gateway" "General access control for API calls" "Spring Cloud Gateway" "ApiGateway"
@@ -47,6 +56,17 @@ workspace "Schedule" "System to Schedule appointments at the University" {
         crudOtherBC -> database "Store, view, update, delete record"
         coreScheduleBC -> database "Store, view, update, delete record"
         coreScheduleBC -> emailSystem "Send email for notification"
+        
+        userController -> userService "Call methods" 
+        userService -> userRepository "Call methods"
+        userService -> studentRepository "Call methods"
+        userService -> teacherRepository "Call methods"
+        userRepository -> database "Store, view, update, delete record for user"
+        studentRepository -> database "Get record for student"
+        teacherRepository -> database "Get record for teacher"
+        
+        userService -> gmailComponent "Call methods"
+        gmailComponent -> gmailSystem "Validate and get Perfil information"
     }
     views {
         systemcontext scheduleSystem "SystemContext" {
@@ -54,6 +74,10 @@ workspace "Schedule" "System to Schedule appointments at the University" {
             autoLayout
         }
         container scheduleSystem "ContainerSystem" {
+            include *
+            autoLayout
+        }
+        component accountBC "AccountBC" {
             include *
             autoLayout
         }
@@ -97,7 +121,15 @@ workspace "Schedule" "System to Schedule appointments at the University" {
             element "Database" {
                 shape Cylinder
                 background #1B9C85
-            }       
+            }
+            
+            
         }
     }
+
 }
+
+
+
+
+
