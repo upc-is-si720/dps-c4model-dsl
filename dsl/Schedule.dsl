@@ -4,11 +4,18 @@ workspace "Schedule" "System to Schedule appointments at the University" {
         student = person "University Student" "Person who books or requests an appointment" "Student"
         teacher = person "University Teacher" "Person attends the appointment" "Teacher"
         manager = person "Manager System" "Person who administers and supports the system" "Manager"
-
+        
+        # Esto es un comentario
         scheduleSystem = softwareSystem "Schedule UPC" "System to Schedule appointments at the University" "ScheduleSystem" {
-            webApplication = container "Web Application" "Frontend of Application"
-            apiApplication = container "Api REST Ful" "backend of Application"
-            databaseApplication = container "Database" "Database of Application"
+            webApplication = container "Web Application" "Frontend of Application" "Angular/Typescript" "WebApplication"
+            mobileApp = container "Mobile Application" "Android and iOS Mobile" "Kotlin / Swift" "MobileApp"
+            database = container "Database" "Database of Application" "SQL Server" "Database"
+            
+            accountBC = container "Account Bounded Context" "Api RESTful of Manage user account" "Java v17 / Spring v3" "AccountBC,BoundedContext"
+            crudPeopleBC = container "CRUD People Bounded Context" "Api RESTful of Manage crud of Student and Teacher" "Java v17 / Spring v3" "CrudPeopleBC,BoundedContext"
+            crudOtherBC = container "CRUD Othes Bounded Context" "Api RESTful of Manage crud of other class" "Java v17 / Spring v3" "CrudOtherBC,BoundedContext"
+            coreScheduleBC = container "Schedule Bounded Context" "Api RESTful of Business Core of Schedule process" "Java v17 / Spring v3" "coreScheduleBC,BoundedContext"
+            apiGateway = container "Api Gateway" "General access control for API calls" "Spring Cloud Gateway" "ApiGateway"
         }
         gmailSystem = softwareSystem "Gmail" "Gmail user" "Gmail"
         emailSystem = softwareSystem "Email provider" "Send email to student" "Email"
@@ -23,29 +30,31 @@ workspace "Schedule" "System to Schedule appointments at the University" {
         student -> webApplication "Use the web Application for appointment"
         teacher -> webApplication "Use the web Application"
         manager -> webApplication "Use the web Application for manager"
-        webApplication -> apiApplication "Call the endpoint fron API REST"
-        apiApplication -> databaseApplication "Store, view, update, delete record"
-        apiApplication -> gmailSystem "Register and Authenticate user"
-        apiApplication -> emailSystem "Send email to student"
-
+        student -> mobileApp "use the Mobile App" "Http/Https"
+        teacher -> mobileApp "use the Mobile App" "Http/Https"
+        
+        webApplication -> apiGateway "Call the endpoint from API REST"
+        mobileApp -> apiGateway "Call the endpoint from API REST"
+        
+        apiGateway -> accountBC "Call the endpoints of BC"
+        apiGateway -> crudPeopleBC "Call the endpoints of BC"
+        apiGateway -> crudOtherBC "Call the endpoints of BC"
+        apiGateway -> coreScheduleBC "Call the endpoints of BC"
+        
+        accountBC -> database "Store, view, update, delete record"
+        accountBC -> gmailSystem "Validate and get Perfil information"
+        crudPeopleBC -> database "Store, view, update, delete record"
+        crudOtherBC -> database "Store, view, update, delete record"
+        coreScheduleBC -> database "Store, view, update, delete record"
+        coreScheduleBC -> emailSystem "Send email for notification"
     }
     views {
         systemcontext scheduleSystem "SystemContext" {
             include *
-            animation {
-                student
-                scheduleSystem
-            }
             autoLayout
         }
         container scheduleSystem "ContainerSystem" {
             include *
-            animation {
-                student
-                webApplication
-                apiApplication
-                databaseApplication
-            }
             autoLayout
         }
         styles {
@@ -68,15 +77,27 @@ workspace "Schedule" "System to Schedule appointments at the University" {
                 color #ffffff
                 background #1d87c7
             }
+            element "Container" {
+                color #ffffff
+                background #1d87c7
+            }
+            element "WebApplication" {
+                shape WebBrowser
+            }
+            element "MobileApp" {
+                shape MobileDevicePortrait
+            }
+            element "ApiGateway" {
+                shape RoundedBox
+                background #7E1717
+            }
+            element "BoundedContext" {
+                shape Hexagon
+            }
+            element "Database" {
+                shape Cylinder
+                background #1B9C85
+            }       
         }
     }
-
-
-
-
 }
-
-
-
-
-
