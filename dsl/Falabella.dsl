@@ -8,15 +8,22 @@ workspace "Falabella" "This is an Diagram for Falabella.com" {
         administrationUser = person "Administration User" "Person who manages and supports the application." "AdministrationUser"
 
         falabellaSoftware = softwareSystem "Falabella.com" "Home products retail system." "FalabellaSoftware" {
-            mobileApp = container "Mobile App" "Provides a set of the Internet functionality to customers via their mobile device." "Kotlin/Swift" "MobileApp"
-            webApp = container "Web App" "Provides a set of the Web functionality via Browser." "Java/Spring" "WebApp"
+            mobileApp = container "Mobile App" "Provides a set of the Internet functionality to customers via their mobile device." "Kotlin - Android / Swift - iOS" "MobileApp"
+            webApp = container "Web App" "Provides a set of the Web functionality via Browser." "Java v17 / Spring v3" "WebApp"
             
             apiGateway = container "API Gateway" "Component that sits between clients and services and provides centralized handling of API communication between them" "Spring Cloud Gateway" "ApiGateway"
             
             cartBC = container "Shopping cart Bounded Context" "Api RESTful of Shopping cart" "Java v17 / Spring v3" "CartBC,BoundedContext"
             paymentBC = container "Payment Bounded Context" "Api RESTful of payment" "Java v17 / Spring v3" "PaymentBC,BoundedContext"
             identityAccessBC = container "Identity and Access Bounded Context" "Api RESTful of Identity and Access Management" "Java v17 / Spring v3" "IdentityAccessBC,BoundedContext"
-            deliveryBC = container "Delivery Bounded Context" "Api RESTful of Delivery" "Java v17 / Spring v3" "DeliveryBC,BoundedContext"
+            deliveryBC = container "Delivery Bounded Context" "Api RESTful of Delivery" "Java v17 / Spring v3" "DeliveryBC,BoundedContext" {
+                deliveryController = component "Delivery Controller" "REST Controller class of Delivery" "Java v17 / Spring Web" "DeliveryController"
+                deliveryService = component "Delivery Service" "Busines Logic class for Delivery" "Java v17 / Spring Data" "DeliveryService"
+                buyerRepository = component "Buyer Repository" "Repository Interface for Buyer Entity" "Java v17 / Spring Data" "BuyerRepository"
+                buyRepository = component "Buy Repository" "Repository Interface for Buy Entity" "Java v17 / Spring Data" "BuyRepository"
+                deliveryRepository = component "Delivery Repository" "Repository Interface for Delivery Entity" "Java v17 / Spring Data" "DeliveryRepository"
+                googleMapComponent = component "Google Map Component" "Component to connect with the GoogleMap API" "Java v17 / Spring v3" "GoogleMapComponent"
+            }
             productBC = container "Product Bounded Context" "Api RESTful of Product Management" "Java v17 / Spring v3" "ProductBC,BoundedContext"
             searchSelectBC = container "Search and Select Bounded Context" "Api RESTful of Search and select product" "Java v17 / Spring v3" "searchSelectBC,BoundedContext"
             crudBC = container "CRUD Bounded Context" "Api RESTful of CRUD entities" "Java v17 / Spring v3" "crudBC,BoundedContext"
@@ -83,18 +90,32 @@ workspace "Falabella" "This is an Diagram for Falabella.com" {
         paymentBC -> openpay "Endpoint call" "JSON / HTTPS"
         deliveryBC -> googleMaps "Endpoint call" "JSON / HTTPS"
         productBC -> googlePhotos  "Endpoint call" "JSON / HTTPS"
-        searchSelectBC ->  googlePhotos  "Endpoint call" "JSON / HTTPS"
+        searchSelectBC ->  googlePhotos "Endpoint call" "JSON / HTTPS"
 
-        
+        # relationships of the Delivery BoundedContext 
+        apiGateway -> deliveryController "Endpoint call" "JSON / HTTPS"
+        deliveryController -> deliveryService "Methods call" "POO"
+        deliveryService -> buyerRepository "Methods call" "POO"
+        deliveryService -> buyRepository "Methods call" "POO"
+        deliveryService -> deliveryRepository "Methods call" "POO"
+        deliveryService -> googleMapComponent "Methods call" "POO"
+        buyerRepository -> relationalDatabase "Store, get, update and delete record" "JDBC/SQL Transactional"
+        buyRepository -> relationalDatabase "Store, get, update and delete record" "JDBC/SQL Transactional"
+        deliveryRepository -> relationalDatabase "Store, get, update and delete record" "JDBC/SQL Transactional"
+        googleMapComponent -> googleMaps "Endpoints call" "JSON / XML / HTTPS"
     }
     views {
-        systemcontext falabellaSoftware "SystemContext" {
+        systemContext falabellaSoftware "SystemContext" {
             include *
             autoLayout 
         }
         container falabellaSoftware "Containers" {
             include *    
-            autoLayout 
+            autoLayout
+        }
+        component deliveryBC "DeliveryBC" {
+            include *    
+            autoLayout
         }
 
         styles {
