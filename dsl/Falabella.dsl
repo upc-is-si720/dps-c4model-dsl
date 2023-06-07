@@ -7,10 +7,6 @@ workspace "Falabella" "This is an Diagram for Falabella.com" {
         storeOwner = person "Store Owner" "Person who manages his products to sell." "StoreOwner"
         administrationUser = person "Administration User" "Person who manages and supports the application." "AdministrationUser"
 
-        # Software System and theirs containers
-        /* 
-        apiRESTful = container "API RESTful" "Provides Internet functionality via a JSON/HTTPS API." "Java/Spring" "ApiRESTful"
-        */
         falabellaSoftware = softwareSystem "Falabella.com" "Home products retail system." "FalabellaSoftware" {
             mobileApp = container "Mobile App" "Provides a set of the Internet functionality to customers via their mobile device." "Kotlin/Swift" "MobileApp"
             webApp = container "Web App" "Provides a set of the Web functionality via Browser." "Java/Spring" "WebApp"
@@ -26,8 +22,6 @@ workspace "Falabella" "This is an Diagram for Falabella.com" {
             crudBC = container "CRUD Bounded Context" "Api RESTful of CRUD entities" "Java v17 / Spring v3" "crudBC,BoundedContext"
             
             relationalDatabase = container "Relational Database" "Stores and update information, hashed authentication credentials, access logs, etc." "Oracle Database 21c - Enterprise Edition" "RelationalDatabase"
-            queryDatabase = container "Query Database" "Read information and Queries always return the JSON data with DTO objects " "MongoDB Community Server v6 - NoSQL Database" "QueryDatabase"
-            eventBus = container "Event Bus" "Mediator that transfers a message from Relational Database to Query Database, it provides a communication way between database." "Kafka - Publish/Subscribe channel" "EventBus"
         }
 
         # External Software System
@@ -79,7 +73,7 @@ workspace "Falabella" "This is an Diagram for Falabella.com" {
         identityAccessBC ->  relationalDatabase "Store, get, update and delete record" "JDBC"
         deliveryBC ->  relationalDatabase "Store, get, update and delete record" "JDBC"
         productBC ->  relationalDatabase "Store, get, update and delete record" "JDBC"
-        searchSelectBC ->  queryDatabase "Get record" "JDBC"
+        searchSelectBC -> relationalDatabase "Store, get, update and delete record" "JDBC"
         crudBC ->  relationalDatabase "Store, get, update and delete record" "JDBC"
         
         # relationships between BoundedContext and external software systems
@@ -90,10 +84,7 @@ workspace "Falabella" "This is an Diagram for Falabella.com" {
         deliveryBC -> googleMaps "Endpoint call" "JSON / HTTPS"
         productBC -> googlePhotos  "Endpoint call" "JSON / HTTPS"
         searchSelectBC ->  googlePhotos  "Endpoint call" "JSON / HTTPS"
-        
-        # relationships between database
-        relationalDatabase -> eventBus "Send Message to Topic" "Event"
-        eventBus -> queryDatabase "Topic send message" "Event"
+
         
     }
     views {
@@ -173,14 +164,7 @@ workspace "Falabella" "This is an Diagram for Falabella.com" {
                 background #FF0000
                 shape Cylinder
             }
-            element "QueryDatabase" {
-                background #116149
-                shape Cylinder
-            }
-            element "EventBus" {
-                background #53AB40
-                shape Pipe
-            }
+
         }
     }
 
