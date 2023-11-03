@@ -112,7 +112,7 @@ workspace "Warda" "La alcancía virtual del BCP" {
                 shape Component
             }
             element "WebApp" {
-                shape MobileDevicePortrait
+                shape WebBrowser
                 background #3f47e1
             }
             element "MobileApp" {
