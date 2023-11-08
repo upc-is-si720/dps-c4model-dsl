@@ -25,22 +25,22 @@ workspace "Warda" "La alcancía virtual del BCP" {
             automaticBC = container "Warda en automático Bounded Context" "API RESTful de Warda en automático" "C# / .NET 7.0" "AutomaticBC,BoundedContext"
             percentageBC = container "Warda un porcentaje Bounded Context" "API RESTful de Warda un porcentaje" "C# / .NET 7.0" "PercentageBC,BoundedContext"
             returnBC = container "Warda el Vuelto Bounded Context" "API RESTful de Warda el vuelto" "Java v21 / Spring Boot v3" "ReturnBC,BoundedContext" {
-                comprasEntity = component "Compras Entity" "Class donde se registras las compras" "Class" "ComprasEntity"
-                cuentasEntity = component "CuentaBancaria Entity" "Class que contiene las cuentas bancarias" "Class" "CuentasEntity"
-                configuracionEntity = component "ConfiguracionVuelto Entity" "Class que contiene la configuración del vuelto" "Class" "ConfiguracionEntity"
-                vueltoEntity = component "VueltoCompras Entity" "Class donde se registra los vueltos" "Class" "VueltoEntity"
+                comprasEntity = component "Compras Entity" "Class donde se registras las compras" "Class" "ComprasEntity,Entity"
+                cuentasEntity = component "CuentaBancaria Entity" "Class que contiene las cuentas bancarias" "Class" "CuentasEntity,Entity"
+                configuracionEntity = component "ConfiguracionVuelto Entity" "Class que contiene la configuración del vuelto" "Class" "ConfiguracionEntity,Entity"
+                vueltoEntity = component "VueltoCompras Entity" "Class donde se registra los vueltos" "Class" "VueltoEntity,Entity"
 
-                comprasRepository = component "Compras Repository" "Repository Interface de Compras Entity" "Interface / Java v21 / Spring Data" "ComprasRepository"
-                cuentasRepository = component "CuentaBancaria Repository" "Repository Interface de CuentaBancaria Entity" "Interface / Java v21 / Spring Data" "CuentasRepository"
-                configuracionRepository = component "ConfiguracionVuelto Repository" "Repository Interface de ConfiguracionVuelto Entity" "Interface / Java v21 / Spring Data" "ConfiguracionRepository"
-                vueltoRepository = component "VueltoCompras respository" "Repository Interface de  " "Class" "Vueltorepository"
+                comprasRepository = component "Compras Repository" "Repository Interface de Compras Entity" "Interface / Java v21 / Spring Data" "ComprasRepository,Repository"
+                cuentasRepository = component "CuentaBancaria Repository" "Repository Interface de CuentaBancaria Entity" "Interface / Java v21 / Spring Data" "CuentasRepository,Repository"
+                configuracionRepository = component "ConfiguracionVuelto Repository" "Repository Interface de ConfiguracionVuelto Entity" "Interface / Java v21 / Spring Data" "ConfiguracionRepository,Repository"
+                vueltoRepository = component "VueltoCompras respository" "Repository Interface de  " "Class" "Vueltorepository,Repository"
 
-                coreBankingBcpComponent = component "Core Banking BCP Component" "Component que se conecta con el Core Bancario" "Java v21 / Spring Boot" "coreBankingBcpComponent"
+                coreBankingBcpComponent = component "Core Banking BCP Component" "Component que se conecta con el Core Bancario" "Java v21 / Spring Boot" "coreBankingBcpComponent,ComponentBC"
 
-                configuracionService = component "ConfiguracionVuelto Service" "Business Logic de la Configuración de la Retención del Vuelto de las Compras" "Class / Java v21 / Spring" "configuracionService"
-                retencionService = component "Retencion Service" "Business Logic de la Retención del vuelto de las compras" "Class / Java v21 / Spring" "RetencionService"
+                configuracionService = component "ConfiguracionVuelto Service" "Business Logic de la Configuración de la Retención del Vuelto de las Compras" "Class / Java v21 / Spring" "configuracionService,Service"
+                retencionService = component "Retencion Service" "Business Logic de la Retención del vuelto de las compras" "Class / Java v21 / Spring" "RetencionService,Service"
 
-                returnController = component "Vuelto Controller" "Api RESTfull Controller class del Vuelto" "Class / Java v21 / Spring Web" "ReturnController"
+                returnController = component "Vuelto Controller" "Api RESTfull Controller class del Vuelto" "Class / Java v21 / Spring Web" "ReturnController,Controller"
 
                 # Relationships between Components
                 apiGateway -> returnController "Endpoint request - Vuelto" "HTTP(S) / JSON" 
@@ -172,12 +172,35 @@ workspace "Warda" "La alcancía virtual del BCP" {
                 color #3f47e1
             }
             element "ApiGateway" {
-                shape Hexagon
+                shape Pipe
                 background #884A39                
             }
             element "Database" {
                 shape Cylinder
                 background #CF0A0A
+            }
+
+            element "Entity" {                
+                background #247F5E
+                color #FFFFFF
+            }
+            element "Repository" {                
+                background #247F5E
+                color #FFFFFF
+            }
+            element "ComponentBC" {
+                shape Component
+                background #511991
+                color #FFFFFF
+            }
+            element "Service" {
+                shape Hexagon
+                background #4547C8
+                color #FFFFFF
+            }
+            element "Controller" {
+                shape "RoundedBox"
+                background #E9E210
             }
 
         }
