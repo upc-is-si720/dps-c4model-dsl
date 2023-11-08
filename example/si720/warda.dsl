@@ -10,6 +10,7 @@ workspace "Warda" "La alcancía virtual del BCP" {
         smsApi = softwareSystem "Sms API" "Envio de mensajes de texto" "SmsApi"
         emailApi = softwareSystem "E-mail API" "Envio de correos electrónicos" "EmailApi"
         
+        
         # SoftwareSystem
         warda = softwareSystem "Warda" "App de alcancía virtual del BCP" "Warda" {
             landingPage = container "Landing Page" "Página marketera del Mobile App" "Html, Css y JavaScript" "LandingPage"
@@ -18,13 +19,59 @@ workspace "Warda" "La alcancía virtual del BCP" {
             
             apiGateway = container "Api Gateway" "Routing los request de los Fronts UI" "api gateway" "ApiGateway" 
 
+            database = container "Database" "Guarda información de las transacciones" "PostgreSQL v16" "Database"
+
             registerBC = container "Register Bounded Context" "API RESTful de Registro de Clientes" "Java v21 / Spring Boot v3" "RegisterBC,BoundedContext"
             automaticBC = container "Warda en automático Bounded Context" "API RESTful de Warda en automático" "C# / .NET 7.0" "AutomaticBC,BoundedContext"
             percentageBC = container "Warda un porcentaje Bounded Context" "API RESTful de Warda un porcentaje" "C# / .NET 7.0" "PercentageBC,BoundedContext"
-            returnBC = container "Warda el Vuelto Bounded Context" "API RESTful de Warda el vuelto" "Python v3.11 / Django v4.2" "ReturnBC,BoundedContext"
-            dashboardBC = container "Dashboard Bounded Context" "API RESTful del Dashboard de Warda" "Java v21 / Spring Boot v3" "DashboardBC,BoundedContext"
+            returnBC = container "Warda el Vuelto Bounded Context" "API RESTful de Warda el vuelto" "Java v21 / Spring Boot v3" "ReturnBC,BoundedContext" {
+                comprasEntity = component "Compras Entity" "Class donde se registras las compras" "Class" "ComprasEntity"
+                cuentasEntity = component "CuentaBancaria Entity" "Class que contiene las cuentas bancarias" "Class" "CuentasEntity"
+                configuracionEntity = component "ConfiguracionVuelto Entity" "Class que contiene la configuración del vuelto" "Class" "ConfiguracionEntity"
+                vueltoEntity = component "VueltoCompras Entity" "Class donde se registra los vueltos" "Class" "VueltoEntity"
 
-            database = container "Database" "Guarda información de las transacciones" "PostgreSQL v16" "Database"
+                comprasRepository = component "Compras Repository" "Repository Interface de Compras Entity" "Interface / Java v21 / Spring Data" "ComprasRepository"
+                cuentasRepository = component "CuentaBancaria Repository" "Repository Interface de CuentaBancaria Entity" "Interface / Java v21 / Spring Data" "CuentasRepository"
+                configuracionRepository = component "ConfiguracionVuelto Repository" "Repository Interface de ConfiguracionVuelto Entity" "Interface / Java v21 / Spring Data" "ConfiguracionRepository"
+                vueltoRepository = component "VueltoCompras respository" "Repository Interface de  " "Class" "Vueltorepository"
+
+                coreBankingBcpComponent = component "Core Banking BCP Component" "Component que se conecta con el Core Bancario" "Java v21 / Spring Boot" "coreBankingBcpComponent"
+
+                configuracionService = component "ConfiguracionVuelto Service" "Business Logic de la Configuración de la Retención del Vuelto de las Compras" "Class / Java v21 / Spring" "configuracionService"
+                retencionService = component "Retencion Service" "Business Logic de la Retención del vuelto de las compras" "Class / Java v21 / Spring" "RetencionService"
+
+                returnController = component "Vuelto Controller" "Api RESTfull Controller class del Vuelto" "Class / Java v21 / Spring Web" "ReturnController"
+
+                # Relationships between Components
+                apiGateway -> returnController "Endpoint request - Vuelto" "HTTP(S) / JSON" 
+
+                returnController -> configuracionService "Methods call" "POO"
+                returnController -> retencionService "Methods call" "POO"
+
+                configuracionService -> configuracionRepository "Methods call" "POO"
+                configuracionService -> coreBankingBcpComponent "Request" "TCP/IP"
+                configuracionService -> cuentasRepository "Methods call" "POO"
+
+                retencionService -> comprasRepository "Methods call" "POO"
+                retencionService -> configuracionRepository "Methods call" "POO"
+                retencionService -> cuentasRepository "Methods call" "POO"
+                retencionService -> coreBankingBcpComponent "Request" "TCP/IP"
+                retencionService -> vueltoRepository "Methods call" "POO"                
+
+                coreBankingBcpComponent -> coreBankingBcp "Query, update and store in account - Vuelto" "TCP/IP"
+
+                comprasRepository -> comprasEntity "Methods call" "POO"
+                cuentasRepository -> cuentasEntity "Methods call" "POO"
+                configuracionRepository -> configuracionEntity "Methods call" "POO"
+                vueltoRepository -> vueltoEntity "Methods call" "POO"
+
+                comprasRepository -> database "Store, update, delete and fetch records - Vuelto" "Database Transaction"
+                cuentasRepository -> database "Store, update, delete and fetch records - Vuelto" "Database Transaction"
+                configuracionRepository -> database "Store, update, delete and fetch records - Vuelto" "Database Transaction"
+                vueltoRepository -> database "Store, update, delete and fetch records - Vuelto" "Database Transaction"
+            }
+            dashboardBC = container "Dashboard Bounded Context" "API RESTful del Dashboard de Warda" "Python v3.11 / Django v4.2" "DashboardBC,BoundedContext"
+           
             
             # Relationships between Person and Front
             customer -> landingPage "Visualiza"
@@ -82,6 +129,10 @@ workspace "Warda" "La alcancía virtual del BCP" {
             autoLayout tb
         }
         container warda "WardaContainer" "Diagrama de Contenedores" {
+            include *
+            autoLayout tb
+        }
+        component returnBC "ReturnComponent" "Digrama de Componentes" {
             include *
             autoLayout tb
         }
