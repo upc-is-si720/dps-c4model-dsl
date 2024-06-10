@@ -4,6 +4,7 @@ workspace "Academic" "Sistema Académico de centros de enseñanza" {
         # persons
         student = person "Student" "Estudiante universitario" "Student"
         professor = person "Professor" "Profesor Universitario" "Professor"
+        manager = person "Personal Administrativo" "Personal Administrativo de la Institución" "Manager"
 
         # External SoftwareSystem
         reniecApi = softwareSystem "Reniec API" "Web Service de RENIEC" "ReniecApi"
@@ -17,12 +18,21 @@ workspace "Academic" "Sistema Académico de centros de enseñanza" {
             database = container "Database" "Guarda información de las transacciones" "SQL Server v20" "Database"
 
             syllabusBC = container "Syllabus management Bounded Context" "API RESTful of Syllabus management" "JavaScript v6 / node.js" "SyllabusBC,BoundedContext" {
-                courseEntity = component "Course Entity" "Class donde se registra los cursos" "Class" "CourseEntity,Entity"
+                group "course" {
+                    courseEntity = component "Course Entity" "Class donde se registra los cursos" "Class" "CourseEntity,Entity"
+                    courseRepository = component "Course Repository" "Repository Interface de Course Entity" "Interface / JavaScript v6 / node.js" "CourseRepository,Repository"
+                    courseQuery = component "Course Query" "Query for read entity Course" "Record" "CourseQuery, Query"
+                    courseCommand = component "Course Command" "Command for create, update and delete entity Course" "Record" "CourseCommand, Command"
+                    courseCommandService = component "Course CommandService" "Business Logic de la Gestion del Course" "Class / JavaScript v6 / node.js" "CourseCommandService,Service"
+                    courseQueryService = component "Course QueryService" "Business Logic del query del Course" "Class / JavaScript v6 / node.js" "CourseQueryService,Service"
+                }
+                
+                
                 syllabusEntity = component "Syllabus Entity" "Class que contiene los Syllabus" "Class" "SyllabusEntity,Entity"
                 bookEntity = component "Book Entity" "Class que contiene los Books del Syllabus" "Class" "BookEntity,Entity"
                 topicEntity = component "Topic Entity" "Class donde se registra los Topics del Syllabus" "Class" "TopicEntity,Entity"
 
-                courseRepository = component "Course Repository" "Repository Interface de Course Entity" "Interface / JavaScript v6 / node.js" "CourseRepository,Repository"
+                
                 syllabusRepository = component "Syllabus Repository" "Repository Interface de Syllabus Entity" "Interface / JavaScript v6 / node.js" "SyllabusRepository,Repository"
                 bookRepository = component "Book Repository" "Repository Interface de Book Entity" "Interface / JavaScript v6 / node.js" "BookRepository,Repository"
                 topicRepository = component "Topic respository" "Repository Interface de Topic Entity " "Interface / JavaScript v6 / node.js" "TopicRepository,Repository"
@@ -31,13 +41,16 @@ workspace "Academic" "Sistema Académico de centros de enseñanza" {
                 syllabusService = component "Syllabus Service" "Business Logic de la Gestión de Syllabus" "Class / JavaScript v6 / node.js" "SyllabusService,Service"
 
                 syllabusController = component "Syllabus Controller" "Api RESTfull Controller class del Syllabus" "Class / JavaScript v6 / node.js" "SyllabusController,Controller"
+                courseController = component "Course Controller" "Api RESTfull Controller class del Course" "Class / JavaScript v6 / node.js" "CourseController,Controller"
+                
 
-                apiGateway -> syllabusController "Endpoint request - Syllabus" "HTTP(S) / JSON" 
+                apiGateway -> syllabusController "Endpoint request - Syllabus" "HTTP(S) / JSON"
+                apiGateway -> courseController "Endpoint request - Syllabus" "HTTP(S) / JSON" 
 
                 syllabusController -> courseService "Methods call" "POO"
                 syllabusController -> syllabusService "Methods call" "POO"
 
-                courseService -> courseRepository "Methods call" "POO"
+                
 
                 syllabusService -> syllabusRepository "Methods call" "POO"
                 syllabusService -> bookRepository "Methods call" "POO"
@@ -60,6 +73,7 @@ workspace "Academic" "Sistema Académico de centros de enseñanza" {
             # Relationships between Person and Mobile
             student -> mobileApp "Enrollment and Query"
             professor -> mobileApp "Query and Store grade and attendance"
+            manager -> mobileApp "Manage the software"
 
             # Relationships Mobile and ApiGateway
             mobileApp -> apiGateway "Endpoint request" "HTTP(S) / JSON"
@@ -78,6 +92,17 @@ workspace "Academic" "Sistema Académico de centros de enseñanza" {
 
             # Relationships between Bounded Context and External softwareSystem
             enrollmentBC -> reniecApi "Query of person" "TCP/IP"
+            
+            courseController -> courseCommandService "Call service method"
+            courseController -> courseQueryService "Call service method"
+            
+            courseCommandService -> courseCommand "Handle command"
+            courseCommandService -> courseRepository "Call repository method"
+            courseCommandService -> courseEntity "Use entity"
+            
+            courseQueryService -> courseQuery "Handle query"
+            courseQueryService -> courseRepository "Call repository method"
+            courseQueryService -> courseEntity "Use entity"
         }
 
         #RelationShip
@@ -130,30 +155,37 @@ workspace "Academic" "Sistema Académico de centros de enseñanza" {
                 shape Cylinder
                 background #CF0A0A
             }
-
-            element "Entity" {                
-                background #247F5E
-                color #FFFFFF
-            }
-            element "Repository" {                
-                background #247F5E
-                color #FFFFFF
-            }
             element "ComponentBC" {
                 shape Component
                 background #511991
                 color #FFFFFF
             }
             element "Service" {
-                shape Hexagon
-                background #4547C8
+                shape Component
+                background #169923
+                color #FFFFFF
+            }
+            element "Repository" {
+                shape Diamond
+                background #F0EB0A
+            }
+            element "Command" {
+                shape Circle
+                background #C22777
+                color #FFFFFF
+            }
+            element "Query" {
+                shape Ellipse
+                background #42B8C2
                 color #FFFFFF
             }
             element "Controller" {
-                shape "RoundedBox"
-                background #E9E210
+                shape RoundedBox
+                background #1D75F0
+                color #FFFFFF
             }
 
         }
+    }
 
 }
