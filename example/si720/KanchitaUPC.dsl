@@ -1,135 +1,164 @@
-workspace "KanchitaUPC" "Software for booking football pitch" {
+workspace "Academic" "Sistema Académico de centros de enseñanza" {
 
     model {
-        /* Definición */
-        ownerPitch = person "Owner Pitch" "Person who is owner of Pitch" "OwnerPitch"
-        footballPlayer = person "Soccer player" "Person who soccer player" "FootballPlayer"
-        kanchitaUpc = softwareSystem "Kanchita.UPC" "Software that allows the rental of soccer fields" "KanchitaUpc" {
-            webApplication = container "Web Application" "Front in Browser" "React.js v18.2" "WebApplication"
-            landingPage = container "Landing Page" "Application marketing page" "Bootstrap v5.3.3" "LandingPage"
-            apiGateway = container "Api Gateway" "manager that accepts all API calls" "Amazon API Gateway" "ApiGateway"
-            loginBc = container "Login Bounded Context" "Sign in, sign Up, sign out and login App" "Laravel PHP" "LoginBc"
-            paymentBc = container "Payment Bounded Context" "Football pitch reservation payments" "Laravel PHP" "LoginBc"
-            bookingBc = container "Booking Bounded Context" "Booking a pitch" "Laravel PHP" "BookingBc" {
-                group "booking" {
-                    bookingEntity = component "Booking Entity" "Entity for Booking" "Class" "BookingEntity, Entity"
-                    bookingRepository = component "Booking Repository" "Abstract for reposity Booking" "Interface" "BookingRepository, Repository"
-                    bookingQuery = component "Booking Query" "Query for read entity Booking" "Record" "BookingQuery, Query"
-                    bookingCommand = component "Booking Command" "Command for create, update and delete entity Booking" "Record" "BookingCommand, Command"
-                    bookingCommandService = component "Booking CommandService" "Business Login for create, update and delete entity Booking" "Interface and Class" "BookingCommandService, Service"
-                    bookingQueryService = component "Booking QueryService" "Business Login for read entity Booking" "Interface and Class" "BookingQueryService, Service"
+        # persons
+        student = person "Student" "Estudiante universitario" "Student"
+        professor = person "Professor" "Profesor Universitario" "Professor"
+        manager = person "Personal Administrativo" "Personal Administrativo de la Institución" "Manager"
+
+        # External SoftwareSystem
+        reniecApi = softwareSystem "Reniec API" "Web Service de RENIEC" "ReniecApi"
+        
+        # SoftwareSystem
+        academic = softwareSystem "Academic" "Sistema Académico de centros de enseñanza" "Academic" {
+            mobileApp = container "Mobile App" "Mobile Application del Sistema Academico" "Flutter v8" "MobileApp"
+            
+            apiGateway = container "Api Gateway" "Routing los request de los Fronts UI" "api gateway" "ApiGateway" 
+
+            database = container "Database" "Guarda información de las transacciones" "SQL Server v20" "Database"
+
+            syllabusBC = container "Syllabus management Bounded Context" "API RESTful of Syllabus management" "JavaScript v6 / node.js" "SyllabusBC,BoundedContext" {
+                group "course" {
+                    courseEntity = component "Course Entity" "Class donde se registra los cursos" "Class" "CourseEntity,Entity"
+                    courseRepository = component "Course Repository" "Repository Interface de Course Entity" "Interface / JavaScript v6 / node.js" "CourseRepository,Repository"
+                    courseQuery = component "Course Query" "Query for read entity Course" "Record" "CourseQuery, Query"
+                    courseCommand = component "Course Command" "Command for create, update and delete entity Course" "Record" "CourseCommand, Command"
+                    courseCommandService = component "Course CommandService" "Business Logic de la Gestion del Course" "Class / JavaScript v6 / node.js" "CourseCommandService,Service"
+                    courseQueryService = component "Course QueryService" "Business Logic del query del Course" "Class / JavaScript v6 / node.js" "CourseQueryService,Service"
                 }
-                group "pitch" {
-                    pitchEntity = component "Pitch Entity" "Entity for Pitch" "Class" "PitchEntity, Entity"
-                    pitchRepository = component "Pitch Repository" "Abstract for reposity Pitch" "Interface" "PitchRepository, Repository"
-                    pitchQuery = component "Pitch Query" "Query for read entity Pitch" "Record" "PitchQuery, Query"
-                    pitchQueryService = component "Pitch QueryService" "Business Login for read entity Pitch" "Interface and Class" "PitchQueryService, Service"
-                }
-                group "player" {
-                    playerEntity = component "Player Entity" "Entity for Player" "Class" "PlayerEntity, Entity"
-                }
-                bookingController = component "Booking Controller" "RESTful API for Booking" "Class" "BookingController, Controller"
-            }   
-            database = container "Database" "Store data of app" "PostgreSQL v16.3" "Database"
+                
+                
+                syllabusEntity = component "Syllabus Entity" "Class que contiene los Syllabus" "Class" "SyllabusEntity,Entity"
+                bookEntity = component "Book Entity" "Class que contiene los Books del Syllabus" "Class" "BookEntity,Entity"
+                topicEntity = component "Topic Entity" "Class donde se registra los Topics del Syllabus" "Class" "TopicEntity,Entity"
+
+                
+                syllabusRepository = component "Syllabus Repository" "Repository Interface de Syllabus Entity" "Interface / JavaScript v6 / node.js" "SyllabusRepository,Repository"
+                bookRepository = component "Book Repository" "Repository Interface de Book Entity" "Interface / JavaScript v6 / node.js" "BookRepository,Repository"
+                topicRepository = component "Topic respository" "Repository Interface de Topic Entity " "Interface / JavaScript v6 / node.js" "TopicRepository,Repository"
+
+                courseService = component "Course Service" "Business Logic de la Gestion del Course" "Class / JavaScript v6 / node.js" "CourseService,Service"
+                syllabusService = component "Syllabus Service" "Business Logic de la Gestión de Syllabus" "Class / JavaScript v6 / node.js" "SyllabusService,Service"
+
+                syllabusController = component "Syllabus Controller" "Api RESTfull Controller class del Syllabus" "Class / JavaScript v6 / node.js" "SyllabusController,Controller"
+                courseController = component "Course Controller" "Api RESTfull Controller class del Course" "Class / JavaScript v6 / node.js" "CourseController,Controller"
+                
+
+                apiGateway -> syllabusController "Endpoint request - Syllabus" "HTTP(S) / JSON"
+                apiGateway -> courseController "Endpoint request - Syllabus" "HTTP(S) / JSON" 
+
+                syllabusController -> courseService "Methods call" "POO"
+                syllabusController -> syllabusService "Methods call" "POO"
+
+                
+
+                syllabusService -> syllabusRepository "Methods call" "POO"
+                syllabusService -> bookRepository "Methods call" "POO"
+                syllabusService -> topicRepository "Methods call" "POO"
+
+                courseRepository -> courseEntity "Methods call" "POO"
+                syllabusRepository -> syllabusEntity "Methods call" "POO"
+                bookRepository -> bookEntity "Methods call" "POO"
+                topicRepository -> topicEntity "Methods call" "POO"
+
+                courseRepository -> database "Store, update, delete and fetch records - course" "Database Transaction"
+                syllabusRepository -> database "Store, update, delete and fetch records - syllabus" "Database Transaction"
+                bookRepository -> database "Store, update, delete and fetch records - book" "Database Transaction"
+                topicRepository -> database "Store, update, delete and fetch records - topic" "Database Transaction"
+            }
+            enrollmentBC = container "Enrollment Student Bounded Context" "API RESTful of Enrollment Student" "JavaScript v6 / node.js" "EnrollmentBC,BoundedContext"
+            facultyBC = container "Faculty management Bounded Context" "API RESTful of Academic management" "JavaScript v6 / node.js" "FacultyBC,BoundedContext"
+            scheduleBC = container "Schedule management Context" "API RESTful of Schedule management" "JavaScript v6 / node.js" "ScheduleBC,BoundedContext"
+
+            # Relationships between Person and Mobile
+            student -> mobileApp "Enrollment and Query"
+            professor -> mobileApp "Query and Store grade and attendance"
+            manager -> mobileApp "Manage the software"
+
+            # Relationships Mobile and ApiGateway
+            mobileApp -> apiGateway "Endpoint request" "HTTP(S) / JSON"
+
+            # Relationships between ApiGateway and Bounded Context
+            apiGateway -> syllabusBC "Endpoint request" "HTTP(S) / JSON"
+            apiGateway -> enrollmentBC "Endpoint request" "HTTP(S) / JSON"
+            apiGateway -> facultyBC "Endpoint request" "HTTP(S) / JSON"
+            apiGateway -> scheduleBC "Endpoint request" "HTTP(S) / JSON"
+
+            # Relationships between Bounded Context and Database
+            syllabusBC -> database "Store, fetch and update records" "Database Transaction" 
+            enrollmentBC -> database "Store, fetch and update records" "Database Transaction"
+            facultyBC -> database "Store, fetch and update records" "Database Transaction"
+            scheduleBC -> database "Store, fetch and update records" "Database Transaction"
+
+            # Relationships between Bounded Context and External softwareSystem
+            enrollmentBC -> reniecApi "Query of person" "TCP/IP"
+            
+            courseController -> courseCommandService "Call service method"
+            courseController -> courseQueryService "Call service method"
+            
+            courseCommandService -> courseCommand "Handle command"
+            courseCommandService -> courseRepository "Call repository method"
+            courseCommandService -> courseEntity "Use entity"
+            
+            courseQueryService -> courseQuery "Handle query"
+            courseQueryService -> courseRepository "Call repository method"
+            courseQueryService -> courseEntity "Use entity"
         }
-        googleMapApi = softwareSystem "Google Map Api" "API that returns maps" "GoogleMapApi"
-        yapeApi = softwareSystem "Yape Api" "Electronic wallet via QR" "yapeApi"
-        
-        /* Relationship */
-        ownerPitch -> kanchitaUpc "Use"
-        footballPlayer -> kanchitaUpc "Use"
-        kanchitaUpc -> googleMapApi "Consume"
-        kanchitaUpc -> yapeApi "Consume"
-        
-        /* Relation Ship kanchitaUpc */
-        ownerPitch -> webApplication "Use"
-        footballPlayer -> webApplication "Use"
-        footballPlayer -> landingPage "Use"
-        
-        webApplication -> apiGateway "Call Api"
-        landingPage -> webApplication "Redirect"
-        
-        apiGateway -> loginBc "Call Api"
-        apiGateway -> bookingBc "Call Api"
-        apiGateway -> paymentBc "Call Api"
-        
-        loginBc -> database "Query"
-        bookingBc -> database "Query"
-        paymentBc -> database "Query"
-        
-        webApplication -> googleMapApi "Call Api"
-        paymentBc -> yapeApi "Call Api"
-        
-        /* Relation Ship bookingBc */
-        apiGateway -> bookingController "Request endpoints"
-        
-        bookingController -> bookingCommandService "Call service method"
-        bookingController -> bookingQueryService "Call service method"
-        bookingController -> pitchQueryService "Call service method"
 
-        bookingCommandService -> bookingCommand "Handle command"
-        bookingCommandService -> bookingRepository "Call repository method"
-        bookingCommandService -> bookingEntity "Use entity"
-        
-        bookingQueryService -> bookingQuery "Handle query"
-        bookingQueryService -> bookingRepository "Call repository method"
-        bookingQueryService -> bookingEntity "Use entity"
-        
-        pitchQueryService -> pitchQuery "Handle query"
-        pitchQueryService -> pitchRepository "Call repository method"
-        pitchQueryService -> pitchEntity "Use entity"
+        #RelationShip
+        student -> academic "Estudiante usa la App"
+        professor -> academic "Usa App"
+        academic -> reniecApi "Consulta"
 
-        bookingRepository -> database "Store, read, update and delete record"
-        bookingRepository -> bookingEntity "Use entity"
-        
-        pitchRepository -> database "Store, read, update and delete record"
-        pitchRepository -> pitchEntity "Use entity"
-        
-        bookingQuery -> playerEntity "Use entity"
-        
     }
     views {
-        systemContext kanchitaUpc "kanchitaUpcSystemContext" {
+        systemContext academic "AcademicSystemContext" "Sistema Académico" {
             include *
-            autoLayout
+            autoLayout tb
         }
-        container kanchitaUpc "kanchitaUpcContainer" {
+        container academic "AcademicContainer" "Diagrama de Contenedores" {
             include *
-            autoLayout
+            autoLayout tb
         }
-        component bookingBc "bookingBcComponent" {
+        component syllabusBC "SyllabusComponent" "Diagrama de Componentes" {
             include *
-            autoLayout
+            autoLayout tb
         }
+
         styles {
             element "Person" {
                 shape Person
-                background #9D1444
+                background #5F04B4
                 color #FFFFFF
             }
-            element "KanchitaUpc" {
-                background #218F40
-                color #F5EB2C
-                shape RoundedBox
-            }
-            element "Software System" {
-                background #6048F5
+            element "Container" {
+                background #002A8D
                 color #FFFFFF
             }
-            element "WebApplication" {
+            element "BoundedContext" {
+                shape Component
+            }
+            element "WebApp" {
                 shape WebBrowser
-                background #2067F5
-                color #FFFFFF
-                icon https://static.structurizr.com/themes/amazon-web-services-2020.04.30/Amazon-EC2_D2-Instance_light-bg@4x.png
+                background #3f47e1
             }
-            element "LandingPage" {
-                shape WebBrowser
-                background #048000
-                color #FFFFFF
+            element "MobileApp" {
+                shape MobileDevicePortrait
+                background #f2f6ff
+                color #3f47e1
             }
             element "ApiGateway" {
                 shape Pipe
-                background Orange
+                background #884A39                
+            }
+            element "Database" {
+                shape Cylinder
+                background #CF0A0A
+            }
+            element "ComponentBC" {
+                shape Component
+                background #511991
+                color #FFFFFF
             }
             element "Service" {
                 shape Component
@@ -155,36 +184,8 @@ workspace "KanchitaUPC" "Software for booking football pitch" {
                 background #1D75F0
                 color #FFFFFF
             }
-            element "Entity" {
-                shape Box
-                background #7D08BC
-                color #FFFFFF
-            }
-            element "Database" {
-                shape Cylinder
-                background #306792
-                color #FFFFFF
-            }
-            element "Container" {
-                shape Hexagon
-                background #805B17
-                color #FFFFFF
-            }
-            element "Group:booking" {
-                color #FF0000
-            }
-            element "Group:pitch" {
-                color #0F9800
-            }
-            element "Group:player" {
-                color #0000FF
-            }
-            
-        }
-    }
 
-    configuration {
-        scope softwaresystem
+        }
     }
 
 }
