@@ -20,7 +20,7 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
             # --------------------------------------------------------
             # SearchAndSelect Bounded Context
             # --------------------------------------------------------
-            searchAndSelectBC = container "Search and Select Bunded Context" "Permite la busqueda y agregar productos al carrito de compras" "Express.js / ECMAScript v2024" "SearchAndSelectBC,BoundedContext"  {
+            searchAndSelectBC = container "Search and Select Bounded Context" "Permite la busqueda y agregar productos al carrito de compras" "Express.js / ECMAScript v2024" "SearchAndSelectBC,BoundedContext"  {
                 searchEngineController = component "SearchEngine Controller" "RESTful API Controller class del SearchEngine" "Class / Express.js / ECMAScript v2024" "SearchEngineController,Controller"
                 group "searchEngine" {
                     searchEngineRepository = component "SearchEngine Repository" "Repository Interface de SearchEngine" "Interface / Express.js / ECMAScript v2024" "SearchEngineRepository,Repository"
@@ -28,10 +28,13 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
                     searchEngineQueryService = component "SearchEngine QueryService" "Business Logic del query del SearchEngine" "Class / Express.js / ECMAScript v2024" "SearchEngineQueryService,Service"
                 }
                 group "product" {
-                    productQuery = component "Product Query" "Query for read Product" "Record" "ProductQuery, Query"
+                    productRepository = component "Product Repository" "Repository Interface de Product" "Interface / Express.js / ECMAScript v2024" "ProductRepository,Repository"
+                    productQueryService = component "Product QueryService" "Business Logic del query del Product" "Class / Express.js / ECMAScript v2024" "ProductQueryService,Service"
                 }
                 group "outboundservices" {
                     cartExternalService = component "Cart ExternalService" "External Business Logic de carrito de compras" "Class / Express.js / ECMAScript v2024" "CartExternalService,ExternalService"
+                }
+                group "outboundexternal" {
                     googlePhotosExternalService = component "Google Photos ExternalService" "External Business Logic de fotos de productos" "Class / Express.js / ECMAScript v2024" "GooglePhotosExternalService,ExternalService"
                 }
             }
@@ -39,7 +42,7 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
             # --------------------------------------------------------
             # Shopping Cart Bounded Context
             # --------------------------------------------------------
-            shoppingCartBC = container "Shopping cart Bunded Context" "Permite la gestión del carrito de compras" "Express.js / ECMAScript v2024" "ShoppingCartBC,BoundedContext" {
+            shoppingCartBC = container "Shopping cart Bounded Context" "Permite la gestión del carrito de compras" "Express.js / ECMAScript v2024" "ShoppingCartBC,BoundedContext" {
                 cartController = component "Cart Controller" "RESTful API Controller class del Cart" "Class / Express.js / ECMAScript v2024" "CartController,Controller"
                 group "Cart"  {
                     cartRepository = component "Cart Repository" "Repository Interface de Cart" "Interface / Express.js / ECMAScript v2024" "CartRepository,Repository"
@@ -57,7 +60,7 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
             # --------------------------------------------------------
             # Payment Bounded Context
             # --------------------------------------------------------
-            paymentBC = container "Payment Bunded Context" "Permite el pago de producto del carrito de compras" "Express.js / ECMAScript v2024" "PaymentBC,BoundedContext" {
+            paymentBC = container "Payment Bounded Context" "Permite el pago de producto del carrito de compras" "Express.js / ECMAScript v2024" "PaymentBC,BoundedContext" {
                 paymentController = component "Payment Controller" "RESTful API Controller class del Payment" "Class / Express.js / ECMAScript v2024" "PaymentController,Controller"
                 customerController = component "Customer Controller" "RESTful API Controller class del Customer" "Class / Express.js / ECMAScript v2024" "CustomerController,Controller"
                 group "Payment" {
@@ -77,7 +80,11 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
                 }
                 group "outboundservices" {
                     deliveryExternalService = component "Delivery ExternalService" "External Business Logic de entrega de productos" "Class / Express.js / ECMAScript v2024" "DeliveryExternalService,ExternalService"
+                }
+                group "outboundexternal" {
                     walletApiExternalService = component "Wallet Api ExternalService" "External Business Logic de pago mediante billetera electrónica: yape y plin" "Class / Express.js / ECMAScript v2024" "WalletApiExternalService,ExternalService"
+                    pagoEfectivoExternalService = component "PagoEfectivo ExternalService" "External Business Logic de Generación de Código de pago" "Class / Express.js / ECMAScript v2024" "PagoEfectivoExternalService,ExternalService"
+                    googleMapExternalService = component "Google Map ExternalService" "External Business Logic para la ubicación Geoespacial de la dirección en el mapa" "Class / Express.js / ECMAScript v2024" "GoogleMapExternalService,ExternalService"
                 }
                 group "inboundservices" {
                     saleContextFacade = component "Sale ContextFacade" "Facade Business Logic de venta de productos" "Class / Express.js / ECMAScript v2024" "SaleContextFacade,ContextFacade"
@@ -88,7 +95,7 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
             # --------------------------------------------------------
             # Delivery Bounded Context
             # --------------------------------------------------------
-            deliveryBC = container "Delivery Bunded Context" "Gestiona la entraga de productos comprados" "Express.js / ECMAScript v2024" "DeliveryBC,BoundedContext" {
+            deliveryBC = container "Delivery Bounded Context" "Gestiona la entraga de productos comprados" "Express.js / ECMAScript v2024" "DeliveryBC,BoundedContext" {
                 deliveryController = component "Delivery Controller" "RESTful API Controller class del Delivery" "Class / Express.js / ECMAScript v2024" "DeliveryController,Controller"
                 transportController = component "Transport Controller" "RESTful API Controller class del Transport" "Class / Express.js / ECMAScript v2024" "TransportController,Controller"
                 group "Delivery" {
@@ -118,14 +125,15 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
                 paymentDB = container "Payment Database" "Guarda información de los pago de los productos a comprar" "Redis Database v7.4" "PaymentDB,Database"
                 deliveryDB = container "Delivery Database" "Guarda información de la entrega de los productos comprados" "MongoDB Database v8.0" "DeliveryDB,Database"
             }
-
         }
 
         # --------------------------------------------------------
         # External System
         # --------------------------------------------------------
         googlePhotos = softwareSystem "Google Photos" "Repositorio de fotos" "GooglePhotos,ExternalSystem"
+        googleMap = softwareSystem "Google Map" "Api de Interacción con las Mapas de Google" "GoogleMap,ExternalSystem"
         walletAPI = softwareSystem "Wallet API" "Api de Billetera eletrónica: yape y plin" "WalletAPI,ExternalSystem"
+        pagoEfectivo = softwareSystem "Pago Efectivo" "Api de Pago Efectivo" "PagoEfectivo,ExternalSystem"
 
         # --------------------------------------------------------
         # RelationShip
@@ -138,8 +146,10 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
         manager -> buyingUPC "Gestiona Software"
         anonymous -> buyingUPC "View productos"
         buyingUPC -> googlePhotos "Query de fotos de producto seleccionado"
+        buyingUPC -> googleMap "Ubicación Geoespacial de la dirección en el mapa"
         googlePhotos -> buyingUPC "Response de fotos de los producto"
         buyingUPC -> walletAPI "Generación del QR de pago"
+        buyingUPC -> pagoEfectivo "Generación de Código de pago"
 
         # --------------------------------------------------------
         # Relationship container
@@ -169,6 +179,8 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
         searchAndSelectBC -> googlePhotos "Query de fotos de producto seleccionado"
         googlePhotos -> searchAndSelectBC "Response de fotos de los producto"
         paymentBC -> walletAPI "Generación del QR de pago"
+        paymentBC -> pagoEfectivo "Generación de Código de pago"
+        paymentBC -> googleMap "Ubicación Geoespacial de la dirección en el mapa"
 
         # --------------------------------------------------------
         # Relationships SearchAndSelect Bounded Context
@@ -177,6 +189,7 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
 
         searchEngineController -> searchEngineQueryService "Call service method"
         searchEngineController -> searchEngineCommandService "Call service method"
+        searchEngineController -> productQueryService "Call service method"
         
         searchEngineQueryService -> searchEngineRepository "Call repository method"
 
@@ -185,6 +198,10 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
         searchEngineCommandService -> googlePhotosExternalService "Endpoint Request" "HTTPS / Json"
 
         searchEngineRepository -> searchAndSelectDB "Store, update, delete and fetch records - searchEngine" "SQL transaction"
+
+        productQueryService -> productRepository "Call repository method"
+
+        productRepository -> searchAndSelectDB "fetch records - product" "SQL transaction"
 
         cartExternalService -> cartContextFacade "Agregar producto al carrito de Compras"
         googlePhotosExternalService -> googlePhotos "Query de fotos de producto seleccionado"
@@ -232,6 +249,8 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
 
         paymentCommandService -> paymentRepository "Call repository method"
         paymentCommandService -> walletApiExternalService "Call external service method"
+        paymentCommandService -> pagoEfectivoExternalService "Call external service method"
+        paymentCommandService -> googleMapExternalService "Call external service method"
         paymentCommandService -> saleCommandService "Call service method"
 
         paymentRepository -> paymentDB "Store, update, delete and fetch records - payment" "SQL transaction"
@@ -244,7 +263,10 @@ workspace "BuyingUPCv2" "Sistema de Venta de productos" {
         saleRepository -> paymentDB "Store, update, delete and fetch records - sale" "SQL transaction"
 
         walletApiExternalService -> walletApi "Generación del QR de pago"
+        pagoEfectivoExternalService -> pagoEfectivo "Generación de Código de pago"
+        googleMapExternalService -> googleMap "Ubicación Geoespacial de la dirección en el mapa"
         deliveryExternalService -> deliveryContextFacade "Planificar la entrega del producto"
+        
         customerContextFacade -> customerCommandService "Call service method"
         saleContextFacade -> saleQueryService "Call service method"
 

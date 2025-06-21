@@ -102,6 +102,7 @@ workspace "SweetManager" "Hotel system for tasks automated" {
     
         container sweet_manager_system {
             include *
+            autolayout lr
         }
     
         styles {
